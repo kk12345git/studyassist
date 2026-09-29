@@ -13,9 +13,11 @@ import {
   Clock,
   FileText,
   Target,
-  LayoutDashboard
+  LayoutDashboard,
+  GraduationCap
 } from 'lucide-react';
 import { User, Streak } from '../types';
+import { InstallAppButton } from './InstallAppButton';
 
 interface NavbarProps {
   user: User | null;
@@ -29,6 +31,7 @@ interface NavbarProps {
   isDark: boolean;
   toggleTheme: () => void;
   onQuickStudy: () => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -42,7 +45,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onResetDemo,
   isDark,
   toggleTheme,
-  onQuickStudy
+  onQuickStudy,
+  onOpenOnboarding
 }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -106,6 +110,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right side controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Download & Install App for all platforms */}
+          <InstallAppButton variant="nav" />
+
           {/* Quick Study Button */}
           <button
             onClick={onQuickStudy}
@@ -167,18 +174,36 @@ export const Navbar: React.FC<NavbarProps> = ({
               {userMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setUserMenuOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-52 rounded-xl border border-white/10 bg-slate-900 p-2 shadow-xl z-40 text-xs">
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-slate-900 p-2 shadow-xl z-40 text-xs">
                     <div className="border-b border-white/10 px-3 py-2">
                       <p className="font-semibold text-white truncate">{user.name}</p>
                       <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                      {user.university && (
+                        <p className="text-[10px] text-indigo-300 truncate mt-0.5">
+                          🎓 {user.degree || user.university}
+                        </p>
+                      )}
                     </div>
+
+                    {onOpenOnboarding && (
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          onOpenOnboarding();
+                        }}
+                        className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-indigo-300 hover:bg-indigo-500/10"
+                      >
+                        <GraduationCap className="h-3.5 w-3.5 text-indigo-400" />
+                        <span>Academic Profile & Database</span>
+                      </button>
+                    )}
 
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
                         setActiveTab('settings');
                       }}
-                      className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-slate-300 hover:bg-white/5"
+                      className="mt-0.5 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-slate-300 hover:bg-white/5"
                     >
                       <span>Settings & Reminders</span>
                     </button>

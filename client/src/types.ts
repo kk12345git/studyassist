@@ -15,6 +15,12 @@ export interface User {
   name: string;
   email: string;
   timezone: string;
+  university?: string;
+  degree?: string;
+  academic_year?: string;
+  target_study_hours?: number;
+  study_goal?: string;
+  onboarding_completed?: number | boolean;
 }
 
 export interface UserSettings {

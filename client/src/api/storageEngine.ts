@@ -22,6 +22,12 @@ interface UserRecord {
   email: string;
   password?: string;
   timezone: string;
+  university?: string;
+  degree?: string;
+  academic_year?: string;
+  target_study_hours?: number;
+  study_goal?: string;
+  onboarding_completed?: number;
   created_at: string;
 }
 
@@ -104,6 +110,12 @@ function getAllUsers(): UserRecord[] {
     email: 'demo@studyassist.com',
     password: 'study123',
     timezone: 'Asia/Kolkata',
+    university: 'Stanford University',
+    degree: 'B.S. Computer Science',
+    academic_year: '3rd Year / Semester 5',
+    target_study_hours: 4,
+    study_goal: 'Master Distributed Systems & Top 5% Semester GPA',
+    onboarding_completed: 1,
     created_at: new Date().toISOString()
   };
   localStorage.setItem(USERS_KEY, JSON.stringify([demoUser]));
@@ -205,6 +217,12 @@ export async function executeStorageRequest<T>(endpoint: string, options: Reques
         email: (body.email || '').toLowerCase(),
         password: body.password || '',
         timezone: body.timezone || 'Asia/Kolkata',
+        university: undefined,
+        degree: undefined,
+        academic_year: undefined,
+        target_study_hours: 3,
+        study_goal: undefined,
+        onboarding_completed: 0,
         created_at: new Date().toISOString()
       };
       users.push(user);
@@ -220,7 +238,13 @@ export async function executeStorageRequest<T>(endpoint: string, options: Reques
         id: user.id,
         name: user.name,
         email: user.email,
-        timezone: user.timezone
+        timezone: user.timezone,
+        university: user.university,
+        degree: user.degree,
+        academic_year: user.academic_year,
+        target_study_hours: user.target_study_hours || 3,
+        study_goal: user.study_goal,
+        onboarding_completed: user.onboarding_completed ?? 0
       },
       settings: data.settings
     } as T;
@@ -240,6 +264,12 @@ export async function executeStorageRequest<T>(endpoint: string, options: Reques
         email,
         password: body.password || '',
         timezone: 'Asia/Kolkata',
+        university: undefined,
+        degree: undefined,
+        academic_year: undefined,
+        target_study_hours: 3,
+        study_goal: undefined,
+        onboarding_completed: 0,
         created_at: new Date().toISOString()
       };
       users.push(user);
@@ -255,7 +285,13 @@ export async function executeStorageRequest<T>(endpoint: string, options: Reques
         id: user.id,
         name: user.name,
         email: user.email,
-        timezone: user.timezone
+        timezone: user.timezone,
+        university: user.university,
+        degree: user.degree,
+        academic_year: user.academic_year,
+        target_study_hours: user.target_study_hours || 3,
+        study_goal: user.study_goal,
+        onboarding_completed: user.onboarding_completed ?? 0
       },
       settings: data.settings
     } as T;
@@ -273,14 +309,99 @@ export async function executeStorageRequest<T>(endpoint: string, options: Reques
         id: user.id,
         name: user.name,
         email: user.email,
-        timezone: user.timezone
+        timezone: user.timezone,
+        university: user.university,
+        degree: user.degree,
+        academic_year: user.academic_year,
+        target_study_hours: user.target_study_hours || 3,
+        study_goal: user.study_goal,
+        onboarding_completed: user.onboarding_completed ?? 0
       },
       settings: data.settings,
       streak: data.streak
     } as T;
   }
 
-  // 4. Auth: Reset Demo
+  // 4. Auth: Onboarding (Save newcomer academic details & initial syllabus)
+  if (endpoint.startsWith('/auth/onboarding') && method === 'POST') {
+    const userId = getCurrentUserId();
+    const users = getAllUsers();
+    const userIdx = users.findIndex((u) => u.id === userId);
+    const user = userIdx >= 0 ? users[userIdx] : users[0];
+
+    // Update user record
+    user.university = body.university || user.university;
+    user.degree = body.degree || user.degree;
+    user.academic_year = body.academic_year || user.academic_year;
+    user.target_study_hours = Number(body.target_study_hours) || user.target_study_hours || 3;
+    user.study_goal = body.study_goal || user.study_goal;
+    user.onboarding_completed = 1;
+    saveUsers(users);
+
+    const data = getUserData(user.id);
+
+    // Update reminder time if provided
+    if (body.reminder_time) {
+      data.settings.reminder_time = body.reminder_time;
+    }
+
+    let createdSubject = null;
+    if (body.subject && body.subject.name) {
+      // Clean out sample subjects if this was their first real onboarding
+      data.subjects = data.subjects.filter((s) => !s.id.startsWith('subj_sample_'));
+      delete data.units[`subj_sample_${user.id}`];
+
+      const newSubjId = `subj_${Date.now()}`;
+      const newSubj = {
+        id: newSubjId,
+        name: body.subject.name.trim(),
+        description: body.subject.description || '',
+        color: body.subject.color || '#6366F1',
+        is_archived: 0,
+        created_at: new Date().toISOString()
+      };
+      data.subjects.push(newSubj);
+      createdSubject = newSubj;
+
+      const unitsList = Array.isArray(body.subject.units) && body.subject.units.length > 0
+        ? body.subject.units
+        : [{ name: 'Foundations & Core Principles', estimated_minutes: 60, difficulty: 'Medium' }];
+
+      data.units[newSubjId] = unitsList.map((u: any, idx: number) => ({
+        id: `unit_${Date.now()}_${idx}`,
+        subject_id: newSubjId,
+        unit_number: `Unit ${idx + 1}`,
+        name: u.name || `Chapter ${idx + 1}`,
+        description: u.description || '',
+        difficulty: u.difficulty || 'Medium',
+        estimated_minutes: Number(u.estimated_minutes) || 60,
+        status: 'Not Started',
+        created_at: new Date().toISOString()
+      }));
+    }
+
+    saveUserData(user.id, data);
+
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        timezone: user.timezone,
+        university: user.university,
+        degree: user.degree,
+        academic_year: user.academic_year,
+        target_study_hours: user.target_study_hours,
+        study_goal: user.study_goal,
+        onboarding_completed: 1
+      },
+      settings: data.settings,
+      subject: createdSubject
+    } as T;
+  }
+
+  // 5. Auth: Reset Demo
   if (endpoint.startsWith('/auth/reset-demo')) {
     const userId = getCurrentUserId();
     localStorage.removeItem(`${DATA_PREFIX}${userId}`);

@@ -62,6 +62,24 @@ export const api = {
         body: JSON.stringify(data)
       }),
     me: () => request<{ user: any; settings: any; streak: any }>('/auth/me'),
+    completeOnboarding: (data: {
+      university: string;
+      degree: string;
+      academic_year: string;
+      target_study_hours: number;
+      study_goal: string;
+      reminder_time?: string;
+      subject?: {
+        name: string;
+        description?: string;
+        color?: string;
+        units?: Array<{ name: string; estimated_minutes?: number; difficulty?: string }>;
+      };
+    }) =>
+      request<{ success: boolean; user: any; settings: any; subject?: any }>('/auth/onboarding', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
     resetDemo: () => request<{ success: boolean; message: string }>('/auth/reset-demo', { method: 'POST' })
   },
 

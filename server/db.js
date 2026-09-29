@@ -18,6 +18,12 @@ function initSchema() {
       email TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
       timezone TEXT DEFAULT 'UTC',
+      university TEXT,
+      degree TEXT,
+      academic_year TEXT,
+      target_study_hours REAL DEFAULT 3,
+      study_goal TEXT,
+      onboarding_completed INTEGER DEFAULT 0,
       created_at TEXT NOT NULL
     );
 
@@ -158,6 +164,24 @@ function initSchema() {
     CREATE INDEX IF NOT EXISTS idx_study_user ON study_sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, is_read);
   `);
+
+  // Safe migrations for academic profile and onboarding fields
+  const userColumns = [
+    { name: 'university', type: 'TEXT' },
+    { name: 'degree', type: 'TEXT' },
+    { name: 'academic_year', type: 'TEXT' },
+    { name: 'target_study_hours', type: 'REAL DEFAULT 3' },
+    { name: 'study_goal', type: 'TEXT' },
+    { name: 'onboarding_completed', type: 'INTEGER DEFAULT 0' }
+  ];
+
+  for (const col of userColumns) {
+    try {
+      db.exec(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type};`);
+    } catch (e) {
+      // Column already exists
+    }
+  }
 }
 
 initSchema();

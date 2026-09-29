@@ -1,0 +1,42 @@
+{
+  "name": "1-4-7 Smart Study Guide",
+  "short_name": "StudyAssist",
+  "description": "Scientific spaced repetition & university syllabus mastery system using the 1-4-7 rule.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07090E",
+  "theme_color": "#6366F1",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Study",
+      "url": "/?tab=dashboard",
+      "description": "Start today's Day 1 study or revision session"
+    },
+    {
+      "name": "My Subjects",
+      "url": "/?tab=subjects",
+      "description": "View university syllabus and units"
+    },
+    {
+      "name": "Revision Calendar",
+      "url": "/?tab=calendar",
+      "description": "Check upcoming 1-4-7 revision deadlines"
+    }
+  ]
+}

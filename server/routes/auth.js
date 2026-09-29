@@ -57,7 +57,13 @@ router.post('/register', (req, res) => {
         id: userId,
         name: name.trim(),
         email: normalizedEmail,
-        timezone
+        timezone,
+        university: null,
+        degree: null,
+        academic_year: null,
+        target_study_hours: 3,
+        study_goal: null,
+        onboarding_completed: 0
       }
     });
   } catch (err) {
@@ -98,7 +104,13 @@ router.post('/login', (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        timezone: user.timezone
+        timezone: user.timezone,
+        university: user.university,
+        degree: user.degree,
+        academic_year: user.academic_year,
+        target_study_hours: user.target_study_hours || 3,
+        study_goal: user.study_goal,
+        onboarding_completed: user.onboarding_completed || 0
       },
       settings
     });
@@ -111,7 +123,7 @@ router.post('/login', (req, res) => {
 // Get Current User Profile & Settings
 router.get('/me', authMiddleware, (req, res) => {
   try {
-    const user = db.prepare('SELECT id, name, email, timezone, created_at FROM users WHERE id = ?').get(req.user.id);
+    const user = db.prepare('SELECT id, name, email, timezone, university, degree, academic_year, target_study_hours, study_goal, onboarding_completed, created_at FROM users WHERE id = ?').get(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -125,6 +137,102 @@ router.get('/me', authMiddleware, (req, res) => {
   } catch (err) {
     console.error('Auth check error:', err);
     return res.status(500).json({ error: 'Could not fetch user profile' });
+  }
+});
+
+// Complete Onboarding & Initialize Newcomer Database
+router.post('/onboarding', authMiddleware, (req, res) => {
+  try {
+    const {
+      university,
+      degree,
+      academic_year,
+      target_study_hours,
+      study_goal,
+      reminder_time,
+      subject
+    } = req.body;
+
+    const userId = req.user.id;
+
+    // Update user profile
+    db.prepare(`
+      UPDATE users
+      SET university = ?, degree = ?, academic_year = ?, target_study_hours = ?, study_goal = ?, onboarding_completed = 1
+      WHERE id = ?
+    `).run(
+      university || null,
+      degree || null,
+      academic_year || null,
+      target_study_hours || 3,
+      study_goal || null,
+      userId
+    );
+
+    // Update reminder time if provided
+    if (reminder_time) {
+      db.prepare(`
+        UPDATE user_settings
+        SET reminder_time = ?
+        WHERE user_id = ?
+      `).run(reminder_time, userId);
+    }
+
+    // If subject provided, create it in their database
+    let createdSubject = null;
+    if (subject && subject.name) {
+      const subjectId = 'subj_' + Date.now();
+      const now = new Date().toISOString();
+      db.prepare(`
+        INSERT INTO subjects (id, user_id, name, description, color, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(
+        subjectId,
+        userId,
+        subject.name.trim(),
+        subject.description || '',
+        subject.color || '#6366F1',
+        now
+      );
+
+      // Add units if provided
+      if (Array.isArray(subject.units) && subject.units.length > 0) {
+        const insertUnit = db.prepare(`
+          INSERT INTO units (id, subject_id, user_id, unit_number, name, description, difficulty, estimated_minutes, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Not Started', ?)
+        `);
+
+        subject.units.forEach((u, idx) => {
+          const unitId = 'unit_' + Date.now() + '_' + idx;
+          insertUnit.run(
+            unitId,
+            subjectId,
+            userId,
+            `Unit ${idx + 1}`,
+            u.name || `Chapter ${idx + 1}`,
+            u.description || '',
+            u.difficulty || 'Medium',
+            u.estimated_minutes || 60,
+            now
+          );
+        });
+      }
+
+      createdSubject = db.prepare('SELECT * FROM subjects WHERE id = ?').get(subjectId);
+    }
+
+    const updatedUser = db.prepare('SELECT id, name, email, timezone, university, degree, academic_year, target_study_hours, study_goal, onboarding_completed, created_at FROM users WHERE id = ?').get(userId);
+    const updatedSettings = db.prepare('SELECT * FROM user_settings WHERE user_id = ?').get(userId) || {};
+
+    return res.json({
+      success: true,
+      user: updatedUser,
+      settings: updatedSettings,
+      subject: createdSubject
+    });
+  } catch (err) {
+    console.error('Onboarding completion error:', err);
+    return res.status(500).json({ error: 'Failed to complete onboarding: ' + err.message });
   }
 });
 

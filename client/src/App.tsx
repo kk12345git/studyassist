@@ -18,6 +18,7 @@ import { UnitModal } from './components/UnitModal';
 import { ExamModal } from './components/ExamModal';
 import { AIModal } from './components/AIModal';
 import { NotificationDrawer } from './components/NotificationDrawer';
+import { OnboardingModal } from './components/OnboardingModal';
 
 export function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -25,6 +26,7 @@ export function App() {
   const [streak, setStreak] = useState<Streak | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loadingApp, setLoadingApp] = useState(true);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
   // Active view tab
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -186,6 +188,7 @@ export function App() {
         isDark={isDark}
         toggleTheme={toggleTheme}
         onQuickStudy={handleQuickStudy}
+        onOpenOnboarding={() => setIsOnboardingModalOpen(true)}
       />
 
       {/* Main App Container */}
@@ -198,6 +201,8 @@ export function App() {
             onStartRevision={(revId) => setActiveRevisionId(revId)}
             onNavigateTab={(tab) => setActiveTab(tab)}
             subjects={subjects}
+            user={user}
+            onOpenOnboarding={() => setIsOnboardingModalOpen(true)}
           />
         )}
 
@@ -367,6 +372,19 @@ export function App() {
           setActiveRevisionId(revId);
         }}
       />
+
+      {/* Newcomer Onboarding & Personal Database Setup Modal */}
+      {user && (!user.onboarding_completed || isOnboardingModalOpen) && (
+        <OnboardingModal
+          user={user}
+          onComplete={(updatedUser, updatedSettings) => {
+            setUser(updatedUser);
+            setSettings(updatedSettings);
+            setIsOnboardingModalOpen(false);
+            refreshCoreData();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -12,9 +12,10 @@ import {
   ArrowRight,
   TrendingUp,
   CheckCircle2,
-  CalendarDays
+  CalendarDays,
+  GraduationCap
 } from 'lucide-react';
-import { Subject, Unit } from '../types';
+import { Subject, Unit, User } from '../types';
 
 interface DashboardViewProps {
   dashboardData: any;
@@ -23,6 +24,8 @@ interface DashboardViewProps {
   onStartRevision: (revisionId: string) => void;
   onNavigateTab: (tab: string) => void;
   subjects: Subject[];
+  user?: User | null;
+  onOpenOnboarding?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -31,7 +34,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onStartStudy,
   onStartRevision,
   onNavigateTab,
-  subjects
+  subjects,
+  user,
+  onOpenOnboarding
 }) => {
   if (loading || !dashboardData) {
     return (
@@ -54,16 +59,50 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-indigo-950/70 via-slate-900 to-purple-950/50 p-5 sm:p-8 backdrop-blur-xl shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 border border-indigo-500/30">
-              <Calendar className="h-3.5 w-3.5 text-indigo-400" />
-              <span>Today: {dashboardData.todayDate}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 border border-indigo-500/30">
+                <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                <span>Today: {dashboardData.todayDate}</span>
+              </div>
+              {user && (user.university || user.degree) && (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/15 px-3 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30">
+                  <GraduationCap className="h-3.5 w-3.5 text-purple-400" />
+                  <span>{user.degree ? `${user.degree} · ` : ''}{user.university}</span>
+                </div>
+              )}
             </div>
             <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight font-display">
-              1-4-7 Spaced Revision Dashboard
+              {user ? `${user.name.split(' ')[0]}'s Study System` : '1-4-7 Spaced Revision Dashboard'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-              Scientific memory lock: Day 1 Learn, Day 4 Revise #1 (+3 days), and Day 7 Revise #2 (+6 days) for permanent exam recall.
+              {user?.study_goal ? (
+                <span><strong>Target:</strong> {user.study_goal}</span>
+              ) : (
+                'Scientific memory lock: Day 1 Learn, Day 4 Revise #1 (+3 days), and Day 7 Revise #2 (+6 days) for permanent exam recall.'
+              )}
             </p>
+            {user && (user.academic_year || user.target_study_hours) && (
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                {user.academic_year && (
+                  <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">
+                    {user.academic_year}
+                  </span>
+                )}
+                {user.target_study_hours && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-semibold">
+                    🎯 Daily Goal: {user.target_study_hours}h / day
+                  </span>
+                )}
+                {onOpenOnboarding && (
+                  <button
+                    onClick={onOpenOnboarding}
+                    className="text-[11px] text-indigo-400 hover:text-indigo-300 underline underline-offset-2 ml-1"
+                  >
+                    Edit Academic Profile
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

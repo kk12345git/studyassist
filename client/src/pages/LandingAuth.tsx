@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { api, setStoredToken } from '../api/client';
 import { User, UserSettings } from '../types';
+import { InstallAppButton } from '../components/InstallAppButton';
 
 interface LandingAuthProps {
   onAuthSuccess: (user: User, settings: UserSettings) => void;
@@ -94,14 +95,17 @@ export const LandingAuth: React.FC<LandingAuthProps> = ({ onAuthSuccess }) => {
             </div>
           </div>
 
-          <button
-            onClick={handleDemoLogin}
-            disabled={loading}
-            className="btn btn-secondary btn-sm flex items-center gap-2 border-indigo-500/30 hover:border-indigo-500/60 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-200"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-indigo-400 animate-pulse" />
-            <span className="font-medium text-xs sm:text-sm">Instant Demo Login</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <InstallAppButton variant="nav" />
+            <button
+              onClick={handleDemoLogin}
+              disabled={loading}
+              className="btn btn-secondary btn-sm flex items-center gap-2 border-indigo-500/30 hover:border-indigo-500/60 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-200"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-indigo-400 animate-pulse" />
+              <span className="font-medium text-xs sm:text-sm">Instant Demo Login</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -125,6 +129,9 @@ export const LandingAuth: React.FC<LandingAuthProps> = ({ onAuthSuccess }) => {
             <p className="text-sm sm:text-lg text-slate-300 max-w-xl leading-relaxed font-normal">
               When you learn a unit on Day 1, the system automatically schedules and reminds you for <strong>Revise #1 on Day 4</strong> and <strong>Revise #2 on Day 7</strong> to lock it into permanent recall.
             </p>
+            <div className="pt-1">
+              <InstallAppButton variant="hero" />
+            </div>
           </div>
 
           {/* Core 1-4-7 Visual Stepper */}
