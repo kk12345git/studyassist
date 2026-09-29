@@ -1,4 +1,5 @@
 // API Client for 1-4-7 Smart Study Guide
+import { handleMockRequest } from './mockHandler';
 
 const API_BASE = '/api';
 
@@ -25,17 +26,28 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers
-  });
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers
+    });
 
-  if (!response.ok) {
+    if (response.ok) {
+      return response.json();
+    }
+
+    // If backend returns 404 (e.g. static hosting on Vercel without Express running), fallback to local mock engine
+    if (response.status === 404 || response.status === 502 || response.status === 503) {
+      return await handleMockRequest<T>(endpoint, options);
+    }
+
     const errorData = await response.json().catch(() => ({ error: response.statusText }));
     throw new Error(errorData.error || `Request failed with status ${response.status}`);
+  } catch (err: any) {
+    // If network error, offline, or failed to fetch, seamlessly fallback to local engine
+    console.info(`API request to ${endpoint} failed (${err.message}), falling back to local study engine`);
+    return await handleMockRequest<T>(endpoint, options);
   }
-
-  return response.json();
 }
 
 export const api = {
