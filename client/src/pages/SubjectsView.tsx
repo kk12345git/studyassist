@@ -160,18 +160,18 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
                   </div>
                 </div>
 
-                {/* Progress Stats Pills */}
-                <div className="flex flex-wrap items-center gap-3 self-end md:self-auto">
+                {/* Progress Stats Pills & Actions */}
+                <div className="flex flex-wrap items-center justify-between md:justify-end gap-3 w-full md:w-auto">
                   {stats && (
-                    <div className="flex items-center gap-4 text-xs bg-slate-900/80 px-3.5 py-1.5 rounded-xl border border-white/5">
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs bg-slate-900/90 px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/10">
                       <div className="text-slate-300">
                         <strong className="text-white">{stats.totalUnits}</strong> Units
                       </div>
-                      <span className="text-slate-600">•</span>
+                      <span className="text-slate-600 hidden xs:inline">•</span>
                       <div className="text-emerald-400">
                         <strong>{stats.masteredUnits}</strong> Mastered
                       </div>
-                      <span className="text-slate-600">•</span>
+                      <span className="text-slate-600 hidden xs:inline">•</span>
                       <div className="text-indigo-400 font-semibold">
                         {stats.overallProgressPct}% Complete
                       </div>
@@ -179,10 +179,10 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
                   )}
 
                   {/* Actions dropdown */}
-                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-1 ml-auto md:ml-0" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => onOpenAddUnit(subject)}
-                      className="btn btn-secondary btn-sm text-xs flex items-center gap-1"
+                      className="btn btn-secondary btn-sm text-xs flex items-center gap-1 font-semibold"
                       title="Add Unit"
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -312,7 +312,7 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                            <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
                               {/* If not started or re-studying */}
                               {isNotStarted ? (
                                 <button

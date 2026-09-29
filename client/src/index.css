@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 :root {
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Outfit', var(--font-body);
@@ -304,9 +309,9 @@ button, input, select, textarea {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(4, 7, 15, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -319,7 +324,7 @@ button, input, select, textarea {
   background: var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -334,13 +339,30 @@ button, input, select, textarea {
 }
 
 @keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Mobile Dock Responsive Rules */
+/* Safe Area Inset Support */
+.safe-area-pb {
+  padding-bottom: max(0.6rem, env(safe-area-inset-bottom, 12px));
+}
+
+/* Mobile Responsive Adjustments */
 @media (max-width: 768px) {
   body {
-    padding-bottom: 74px; /* Space for mobile dock */
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 12px));
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.5rem 0.5rem max(0.75rem, env(safe-area-inset-bottom, 12px)) 0.5rem;
+    align-items: flex-end;
+  }
+  .modal-content {
+    max-height: 92vh;
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
   }
 }

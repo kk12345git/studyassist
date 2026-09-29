@@ -51,31 +51,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Welcome Banner & Streak */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-indigo-950/60 via-slate-900 to-purple-950/40 p-6 sm:p-8">
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="space-y-1.5">
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-indigo-950/70 via-slate-900 to-purple-950/50 p-5 sm:p-8 backdrop-blur-xl shadow-xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 border border-indigo-500/30">
               <Calendar className="h-3.5 w-3.5 text-indigo-400" />
               <span>Today: {dashboardData.todayDate}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight font-display">
               1-4-7 Spaced Revision Dashboard
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-              Learn on Day 1, lock in memory on Day 4 (+3 days), and achieve mastery on Day 7 (+6 days).
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+              Scientific memory lock: Day 1 Learn, Day 4 Revise #1 (+3 days), and Day 7 Revise #2 (+6 days) for permanent exam recall.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3 rounded-2xl bg-slate-900/80 border border-white/10 p-3.5 px-4 shadow-lg">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                <Flame className="h-6 w-6 animate-flame" />
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl bg-slate-900/90 border border-white/10 p-3 px-4 shadow-lg shrink-0">
+              <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <Flame className="h-5 w-5 sm:h-6 sm:w-6 animate-flame" />
               </div>
               <div>
-                <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Active Streak
                 </div>
-                <div className="text-xl font-bold text-white flex items-baseline gap-1">
+                <div className="text-lg sm:text-xl font-extrabold text-white flex items-baseline gap-1">
                   <span>{streak?.current_streak || 0}</span>
                   <span className="text-xs text-slate-400 font-normal">days</span>
                 </div>
@@ -84,7 +84,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <button
               onClick={() => onNavigateTab('subjects')}
-              className="btn btn-primary text-xs sm:text-sm py-3.5 px-5 hidden sm:inline-flex"
+              className="btn btn-primary text-xs sm:text-sm py-3 px-4 font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/25"
             >
               <BookOpen className="h-4 w-4" />
               <span>Browse Units</span>

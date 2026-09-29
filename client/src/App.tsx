@@ -276,7 +276,13 @@ export function App() {
       {/* Mobile Bottom Dock (Requirement 25) */}
       <MobileDock
         activeTab={activeTab}
-        setActiveTab={(tab) => setActiveTab(tab)}
+        setActiveTab={(tab) => {
+          if (tab === 'ai') {
+            setIsAIModalOpen(true);
+          } else {
+            setActiveTab(tab);
+          }
+        }}
       />
 
       {/* Study Session Modal (Day 1) */}
