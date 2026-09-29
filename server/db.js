@@ -2,7 +2,8 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const dbPath = path.join(__dirname, 'studyassist.db');
+const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const dbPath = isVercel ? path.join('/tmp', 'studyassist.db') : path.join(__dirname, 'studyassist.db');
 const db = new Database(dbPath);
 
 // Enable WAL mode & foreign keys
