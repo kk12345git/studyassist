@@ -1,4 +1,5 @@
 // API Client for 1-4-7 Smart Study Guide
+import { executeStorageRequest } from './storageEngine';
 
 const API_BASE = '/api';
 
@@ -25,17 +26,27 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers
-  });
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers
+    });
 
-  if (!response.ok) {
+    if (response.ok) {
+      return response.json();
+    }
+
+    // If backend returns 404 (e.g. on Vercel where Express backend is not hosted),
+    // seamlessly use the persistent browser storage engine so registration & study works immediately!
+    if (response.status === 404 || response.status === 502 || response.status === 503) {
+      return await executeStorageRequest<T>(endpoint, options);
+    }
+
     const errorData = await response.json().catch(() => ({ error: response.statusText }));
     throw new Error(errorData.error || `Request failed with status ${response.status}`);
+  } catch (err: any) {
+    return await executeStorageRequest<T>(endpoint, options);
   }
-
-  return response.json();
 }
 
 export const api = {
